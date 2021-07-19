@@ -17,14 +17,20 @@ services:
     ports:
       - 5044:5044
     volumes:
-      - json-data:/var/log/logstash
+      - ./json-data/eve.json:/var/log/logstash
+      - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/filters/logstash-filter-uuid.gemspec:/urs/share/logstash/filters/logstash-filter-uuid.gemspec
     environment:
       LOG_LEVEL: error
+    #command: sh -c "sh logstash-plugin install /urs/share/logstash/filters/logstash-filter-uuid.gemspec"
+      
 
   suricata:
     build: ./suricata
     container_name: suricata
-    image: ghcr.io/telekom-security/suricata:2006
+    #image: ghcr.io/telekom-security/suricata:2006
+    image: suricata
     restart: always
     environment:
       # For ET Pro ruleset replace "OPEN" with your OINKCODE
@@ -33,11 +39,12 @@ services:
     cap_add:
       - NET_ADMIN
     volumes:
-      - json-data:/var/log/suricata
+      #- ./json-data/eve.json:var/log/suricata/stats.log
       - ./suricata/rules/my.rules:/var/lib/suricata/rules/my.rules
       - ./suricata/docker-entrypoint.sh:/tmp/docker-entrypoint.sh
       - ./suricata/suricata-update-cron:/etc/crontabs/suricata-update-cron
       - ./suricata/suricata-update.sh:/tmp/suricata-update.sh
+      - ./suricata/scripts/get_signature_ids.sh:/tmp/get_signature_ids.sh
       - ./suricata/suricata.yaml:/etc/suricata/suricata.yaml
     command: sh -c "sh /tmp/docker-entrypoint.sh"
 
@@ -49,5 +56,3 @@ services:
     volumes:
       - mongodb:/data/db
       - mongodb_config:/data/configdb
-      
-

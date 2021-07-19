@@ -1,1 +1,2 @@
-xpack.management.enabled: "true"
+log.level: error
+xpack.management.enabled: "false"
